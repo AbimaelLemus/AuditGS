@@ -12,6 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.auditgs.data.local.SessionManager
 import com.example.auditgs.data.repository.AuthRepositoryImpl
 import com.example.auditgs.databinding.ActivityLoginBinding
+import com.example.auditgs.di.AppModule
 import com.example.auditgs.domain.usecase.LoginUseCase
 import com.example.auditgs.ui.agreements.AgreementsActivity
 import com.example.auditgs.utils.NetworkModule
@@ -98,22 +99,11 @@ class LoginActivity : AppCompatActivity() {
 
     private fun initViewModel() {
 
-        val api =
-            NetworkModule.authApi
-
-        val repository =
-            AuthRepositoryImpl(api)
-
-        val useCase =
-            LoginUseCase(repository)
-
-        val sessionManager =
-            SessionManager(this)
-
         viewModel =
             LoginViewModel(
-                useCase,
-                sessionManager
+                loginUseCase = AppModule.provideLoginUseCase(),
+                logoutUseCase = AppModule.provideLogoutUseCase(),
+                sessionManager = AppModule.provideSessionManager(this)
             )
     }
 

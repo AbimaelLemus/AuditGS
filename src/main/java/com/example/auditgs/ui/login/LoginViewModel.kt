@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.auditgs.data.local.SessionManager
 import com.example.auditgs.domain.usecase.LoginUseCase
+import com.example.auditgs.domain.usecase.LogoutUseCase
 import com.example.auditgs.utils.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,6 +13,7 @@ import kotlinx.coroutines.launch
 
 class LoginViewModel(
     private val loginUseCase: LoginUseCase,
+    private val logoutUseCase: LogoutUseCase,
     private val sessionManager: SessionManager,
     private val TAG: String = LoginViewModel::class.java.simpleName
 ) : ViewModel() {
@@ -47,9 +49,36 @@ class LoginViewModel(
 
                 is Resource.Error -> {
                     Log.e(TAG, result.message)
-                    _uiState.value = LoginUiState.Error(result.message)
+                    //_uiState.value = LoginUiState.Error(result.message)
+
+                    val idSession = "00062EE2"
+                    if (!idSession.isNullOrEmpty()) {
+                        logoutPreviousSession(idSession)
+                    } else {
+                        _uiState.value = LoginUiState.Error(result.message)
+                    }
                 }
             }
+        }
+    }
+
+    private suspend fun logoutPreviousSession(idSession: String) {
+        val logoutResult =
+            logoutUseCase(idSession)
+
+        logoutResult.onSuccess {
+            _uiState.value =
+                LoginUiState.Error(
+                    "La sesión anterior fue cerrada. Intenta nuevamente."
+                )
+
+        }.onFailure {
+
+            _uiState.value =
+                LoginUiState.Error(
+                    it.message.orEmpty()
+                )
+
         }
     }
 }

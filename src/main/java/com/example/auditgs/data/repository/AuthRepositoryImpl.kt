@@ -3,6 +3,7 @@ package com.example.auditgs.data.repository
 import android.util.Log
 import com.example.auditgs.data.remote.api.AuthApi
 import com.example.auditgs.data.remote.dto.LoginRequestDto
+import com.example.auditgs.data.remote.dto.LogoutRequestDto
 import com.example.auditgs.domain.model.User
 import com.example.auditgs.domain.repository.AuthRepository
 import com.example.auditgs.utils.Resource
@@ -66,6 +67,45 @@ class AuthRepositoryImpl(
             }
         } catch (e: Exception) {
             Resource.Error(message = e.message.orEmpty())
+        }
+    }
+
+    override suspend fun logout(
+        idSession: String
+    ): Result<Unit> {
+
+        return try {
+
+            val response =
+                api.logout(
+                    LogoutRequestDto(idSession)
+                )
+
+            if (response.isSuccessful) {
+
+                val body = response.body()
+
+                if (body?.codigo == 0) {
+
+                    Result.success(Unit)
+
+                } else {
+
+                    Result.failure(
+                        Exception(body?.mensaje)
+                    )
+                }
+
+            } else {
+
+                Result.failure(
+                    Exception("Error servidor")
+                )
+            }
+
+        } catch (e: Exception) {
+
+            Result.failure(e)
         }
     }
 }

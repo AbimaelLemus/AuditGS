@@ -9,4 +9,8 @@ interface AuthRepository {
         clave: String,
         ip: String,
     ): Resource<User>
+
+    suspend fun logout(
+        idSession: String
+    ): Result<Unit>
 }
