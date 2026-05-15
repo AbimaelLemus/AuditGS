@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.auditgs.data.local.SessionManager
 import com.example.auditgs.domain.usecase.LoginUseCase
+import com.example.auditgs.utils.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -29,20 +30,25 @@ class LoginViewModel(
             _uiState.value =
                 LoginUiState.Loading
 
-            val result = loginUseCase(usuario, clave, ip)
+            when (
+                val result = loginUseCase(usuario, clave, ip)
+            ) {
+                is Resource.Success -> {
+                    val user = result.data
+                    sessionManager.saveSession(
+                        idSession = user.idSession,
+                        token = user.token,
+                        user = user.nombre
+                    )
 
-            result.onSuccess { user ->
-                sessionManager.saveSession(
-                    idSession = user.idSession,
-                    token = user.token,
-                    user = user.nombre
-                )
+                    Log.d(TAG, "Bienvenido ${user.nombre}")
+                    _uiState.value = LoginUiState.Success("Bienvenido ${user.nombre}")
+                }
 
-                Log.d(TAG, "Bienvenido ${user.nombre}")
-                _uiState.value = LoginUiState.Success("Bienvenido ${user.nombre}")
-            }.onFailure {
-                Log.e(TAG, it.message.orEmpty())
-                _uiState.value = LoginUiState.Error(it.message.orEmpty())
+                is Resource.Error -> {
+                    Log.e(TAG, result.message)
+                    _uiState.value = LoginUiState.Error(result.message)
+                }
             }
         }
     }

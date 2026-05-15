@@ -5,6 +5,7 @@ import com.example.auditgs.data.remote.api.AuthApi
 import com.example.auditgs.data.remote.dto.LoginRequestDto
 import com.example.auditgs.domain.model.User
 import com.example.auditgs.domain.repository.AuthRepository
+import com.example.auditgs.utils.Resource
 
 class AuthRepositoryImpl(
     private val api: AuthApi
@@ -14,13 +15,13 @@ class AuthRepositoryImpl(
         usuario: String,
         clave: String,
         ip: String,
-    ): Result<User> {
+    ): Resource<User> {
 
         return try {
             val request =
                 LoginRequestDto(
                     usuario = usuario,
-                    dispositivo = "ANDROID",
+                    dispositivo = "ANDROID_ID",
                     ip = ip,
                     transferir = false,
                     token = "GUID",
@@ -38,7 +39,7 @@ class AuthRepositoryImpl(
 
                     val result = body.resultado
 
-                    Result.success(
+                    Resource.Success(
                         User(
                             nombre = result?.nombre.orEmpty(),
                             correo = result?.correo.orEmpty(),
@@ -48,19 +49,23 @@ class AuthRepositoryImpl(
                         )
                     )
                 } else {
-                    Result.failure(
-                        Exception(body?.mensaje)
+                    Resource.Error(
+                        message =
+                        body?.mensaje.orEmpty(),
+
+                        code =
+                        body?.codigo,
+
+                        idSession =
+                        body?.resultado?.idSession
                     )
                 }
 
             } else {
-                Result.failure(
-                    Exception("Error servidor")
-                )
+                Resource.Error(message = "Error servidor")
             }
-
         } catch (e: Exception) {
-            Result.failure(e)
+            Resource.Error(message = e.message.orEmpty())
         }
     }
 }

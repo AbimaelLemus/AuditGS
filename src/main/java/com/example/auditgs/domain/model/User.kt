@@ -5,5 +5,5 @@ data class User(
     val correo: String,
     val token: String,
     val idSession: String,
-    val numeroEmpleado: String
+    val numeroEmpleado: String,
 )
