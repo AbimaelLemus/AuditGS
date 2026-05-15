@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">AuditGS</string>
+    <string name="user">Usuario:</string>
+    <string name="_1144141">1144141</string>
+    <string name="login">Login</string>
+    <string name="_1234">1234</string>
+    <string name="key">Clave:</string>
 </resources>
