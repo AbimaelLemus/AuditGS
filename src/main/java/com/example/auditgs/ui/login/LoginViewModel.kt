@@ -51,7 +51,7 @@ class LoginViewModel(
                     Log.e(TAG, result.message)
                     //_uiState.value = LoginUiState.Error(result.message)
 
-                    val idSession = "00062EE2"
+                    val idSession = result.idSession
                     if (!idSession.isNullOrEmpty()) {
                         logoutPreviousSession(idSession)
                     } else {
