@@ -1,13 +1,21 @@
 package com.example.auditgs.ui.login
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.auditgs.data.local.SessionManager
 import com.example.auditgs.data.repository.AuthRepositoryImpl
 import com.example.auditgs.databinding.ActivityLoginBinding
 import com.example.auditgs.domain.usecase.LoginUseCase
+import com.example.auditgs.ui.agreements.AgreementsActivity
 import com.example.auditgs.utils.NetworkModule
+import kotlinx.coroutines.launch
 import java.net.NetworkInterface
 import java.util.Collections
 
@@ -23,6 +31,54 @@ class LoginActivity : AppCompatActivity() {
 
         initViewModel()
         listener()
+        observeUiState()
+    }
+
+    private fun observeUiState() {
+
+        lifecycleScope.launch {
+
+            repeatOnLifecycle(
+                Lifecycle.State.STARTED
+            ) {
+
+                viewModel.uiState.collect { state ->
+
+                    when (state) {
+
+                        is LoginUiState.Idle -> {
+
+                        }
+
+                        is LoginUiState.Loading -> {
+                            binding.pbLogin.visibility = View.VISIBLE
+                        }
+
+                        is LoginUiState.Success -> {
+                            binding.pbLogin.visibility = View.GONE
+
+                            Toast.makeText(
+                                this@LoginActivity, state.message, Toast.LENGTH_SHORT
+                            ).show()
+
+                            startActivity(
+                                Intent(this@LoginActivity, AgreementsActivity::class.java)
+                            )
+
+                            finish()
+                        }
+
+                        is LoginUiState.Error -> {
+                            binding.pbLogin.visibility = View.GONE
+
+                            Toast.makeText(
+                                this@LoginActivity, state.message, Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun listener() {

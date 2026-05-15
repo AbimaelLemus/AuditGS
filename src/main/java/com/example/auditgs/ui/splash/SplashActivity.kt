@@ -42,7 +42,7 @@ class SplashActivity : AppCompatActivity() {
             if (idSession != null) {
                 startActivity(Intent(this@SplashActivity, AgreementsActivity::class.java))
             } else {
-                startActivity(Intent(this@SplashActivity, AgreementsActivity::class.java))
+                startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
             }
 
             finish()
